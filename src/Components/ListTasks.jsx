@@ -36,9 +36,23 @@ export default ListTasks;
 const Section = ({ status, tasks, setTasks, todos, inprogress, closed }) => {
 	let text = "todo"
 	let bg = "bg-slate-500"
+	let taskToMap = todos;
+
+	if (status === "inprogress") {
+		text = "In progress";
+		bg = "bg-purple-500";
+		taskToMap = inprogress;
+	}
+
+	if (status === "closed") {
+		text = "closed";
+		bg = "bg-green-500";
+		taskToMap = inprogress;
+	}
 	return (
 		<div className={`w-64`}>
-			<Header text={text} bg={bg} count={todos?.length} /> List
+			<Header text={text} bg={bg} count={taskToMap?.length} />
+			{taskToMap?.length > 0 && taskToMap?.map(task => <Task key={task?.id} task={task} tasks={tasks} setTasks={setTasks} />)}
 		</div>
 	);
 }
@@ -50,6 +64,14 @@ const Header = ({ text, bg, count }) => {
 			<div className="ml-2 bg-white w-5 h-5 text-black rounded-full flex items-center justify-center">
 				{count}
 			</div>
+		</div>
+
+	);
+}
+const Task = ({ task, tasks, setTasks }) => {
+	return (
+		<div className="">
+			{task.name}
 		</div>
 
 	);
