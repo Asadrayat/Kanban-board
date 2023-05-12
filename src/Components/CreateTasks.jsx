@@ -19,11 +19,11 @@ const CreateTasks = ({ tasks, setTasks }) => {
 			return list;
 		})
 		toast.success("Task Created")
-		setTask({
-			id: "",
-			name: "",
-			status: "todo",
-		})
+		// setTask({
+		// 	id: "",
+		// 	name: "",
+		// 	status: "todo",
+		// })
 	}
 	return (
 		<form onSubmit={handleSubmit}>
