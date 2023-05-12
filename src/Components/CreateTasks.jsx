@@ -14,11 +14,16 @@ const CreateTasks = ({ tasks, setTasks }) => {
 		if (task.name.length < 3) return toast.error("A task must have more than 3 characters")
 		if (task.name.length > 100) return toast.error("A task must not have more than 100 characters")
 		setTasks((prev) => {
-			const list = [...prev, task]
+			const list = [...prev, task];
 			localStorage.setItem("tasks", JSON.stringify(list))
 			return list;
 		})
 		toast.success("Task Created")
+		setTask({
+			id: "",
+			name: "",
+			status: "todo",
+		})
 	}
 	return (
 		<form onSubmit={handleSubmit}>
