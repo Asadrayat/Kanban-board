@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";//58min
+import { useDrag, useDrop } from "react-dnd";
 import toast from "react-hot-toast";
 
 const ListTasks = ({ tasks, setTasks }) => {
@@ -35,6 +36,14 @@ const ListTasks = ({ tasks, setTasks }) => {
 export default ListTasks;
 
 const Section = ({ status, tasks, setTasks, todos, inprogress, closed }) => {
+
+	const [{ isOver }, drop] = useDrop(() => ({
+		accept: "task",
+		drop: (item) => addItemToSection(item.id), /* we can drop dragged item */
+		collect: (monitor) => ({
+			isOver: !!monitor.isOver()
+		})
+	}))
 	let text = "todo"
 	let bg = "bg-slate-500"
 	let taskToMap = todos;
@@ -48,13 +57,27 @@ const Section = ({ status, tasks, setTasks, todos, inprogress, closed }) => {
 	if (status === "closed") {
 		text = "closed";
 		bg = "bg-green-500";
-		taskToMap = inprogress;
+		taskToMap = closed;
+	}
+
+	const addItemToSection = (id) => {
+		setTasks((prev) => {
+			const mTask = prev?.map((t) => {
+				if (t.id === id) {
+					return { ...t, status: status }
+				}
+				return t;
+			});
+			localStorage.setItem("tasks", JSON.stringify(mTask))
+			toast("task status changed", {icon: "😀"})
+			return mTask;
+		});
 	}
 	return (
-		<div className={`w-64`}>
+		<div className={`w-64 rounded-md p-2 ${isOver ? "bg-slate-200" : ""} `} ref={drop} >
 			<Header text={text} bg={bg} count={taskToMap?.length} />
 			{taskToMap?.length > 0 && taskToMap?.map(task => <Task key={task?.id} task={task} tasks={tasks} setTasks={setTasks} />)}
-		</div>
+		</div >
 	);
 }
 
@@ -70,6 +93,15 @@ const Header = ({ text, bg, count }) => {
 	);
 }
 const Task = ({ task, tasks, setTasks }) => {
+	// from Make the Knight Draggable
+	const [{ isDragging }, drag] = useDrag(() => ({
+		type: "task",
+		item: { id: task.id }, /* we can define specific dragged item */
+		collect: (monitor) => ({
+			isDragging: !!monitor.isDragging()
+		})
+	}))
+	console.log(isDragging)
 	const handleRemove = (id) => {
 		console.log(id);
 		const fTasks = tasks?.filter(t => t.id !== id)
@@ -78,7 +110,7 @@ const Task = ({ task, tasks, setTasks }) => {
 		toast("Task removed", { icon: "💀" })
 	}
 	return (
-		<div className={`relative p-4 mt-8 shadow-md rounded-md cursor-grab`}>
+		<div ref={drag} className={`relative p-4 mt-8 shadow-md rounded-md ${isDragging ? "opacity-25" : "opacity-100F"} cursor-grab`}>
 			<p>{task.name}</p>
 			<button onClick={() => handleRemove(task.id)} className="absolute bottom-1 right-1 text-slate-400">
 				<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
